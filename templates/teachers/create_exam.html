@@ -1,0 +1,276 @@
+{% extends "index.html" %}
+{% block content %}
+    <br>
+    <br>
+    <button class="btn btn-modern btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#formModal">
+        <i class="fas fa-plus"></i> Create Exam
+    </button>
+    <hr>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                <strong>{{ message.tags }}!</strong> {{ message }}.
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if exams %}
+        <ul class="list list-icons list-primary list-borders">
+            {% for exam in exams %}
+                {% if exam.exam_type == 'essay' %}
+                    <li class="d-flex justify-content-between">
+                        <a href="{% url "create_essay_questions" exam.pk %}">
+                            <i class="fas fa-file"></i> {{ exam }}<span class="badge bg-primary rounded-pill mx-2">{{ exam.count_questions }}</span></a>
+                        <div>
+                            <i class="fas fa-pencil-alt btn btn-primary mx-2"
+                               data-bs-toggle="modal"
+                               data-bs-target="#formModal{{ exam.id }}">
+                            </i><i class="fas fa-trash btn btn-danger"
+   data-bs-toggle="modal"
+   data-bs-target="#deleteModal{{ exam.id }}"></i>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="d-flex justify-content-between">
+                        <a href="{% url "create_mc_questions" exam.pk %}"><i class="fas fa-file"></i> {{ exam }}<span class="badge bg-primary rounded-pill mx-2">{{ exam.count_questions }}</span></a>
+                        <div>
+                            <i class="fas fa-pencil-alt btn btn-primary mx-2"
+                               data-bs-toggle="modal"
+                               data-bs-target="#formModal">
+                            </i><i class="fas fa-trash btn btn-danger"
+   data-bs-toggle="modal"
+   data-bs-target="#deleteModal{{ exam.id }}"></i>
+                        </div>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No exam created yet</p>
+    {% endif %}
+    <div class="modal fade"
+         id="formModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="formModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="formModalLabel">Create Exam</h4>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="exam_form"
+                          action="{% url "create_exam" %}"
+                          method="POST"
+                          class="mb-4">
+                        {% csrf_token %}
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Name</label>
+                            <div class="col-sm-9">
+                                <input type="text"
+                                       name="name"
+                                       class="form-control"
+                                       placeholder="Type exam name..."
+                                       required />
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Duration</label>
+                            <div class="col-sm-9">
+                                <input type="text"
+                                       name="duration"
+                                       class="form-control"
+                                       placeholder="Dutarion in minutes..."
+                                       required />
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Start date</label>
+                            <div class="col-sm-9">
+                                <input type="datetime-local"
+                                       name="start_datetime"
+                                       class="form-control"
+                                       required />
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Exam Type</label>
+                            <div class="col-sm-9">
+                                <select class="form-select form-control"
+                                        name="exam_type"
+                                        data-msg-required="Please select a city."
+                                        name="city"
+                                        required="">
+                                    <option value="mc">Multiple Choice</option>
+                                    <option value="essay">Open Questions</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Pass code</label>
+                            <div class="col-sm-9">
+                                <input type="text"
+                                       name="pass_code"
+                                       class="form-control"
+                                       placeholder="Enter code"
+                                       required />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% for exam in exams %}
+        <div class="modal fade"
+             id="formModal{{ exam.id }}"
+             tabindex="-1"
+             role="dialog"
+             aria-labelledby="formModal{{ exam.id }}Label"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="formModal{{ exam.id }}Label">Create Exam</h4>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="exam_form"
+                              action="{% url "create_exam" %}"
+                              method="POST"
+                              class="mb-4"
+                              novalidate="novalidate">
+                            {% csrf_token %}
+                            <div class="form-group row align-items-center">
+                                <label class="col-sm-3 text-start text-sm-end mb-0">Name</label>
+                                <div class="col-sm-9">
+                                    <input type="text"
+                                           name="name"
+                                           value="{{ exam.name }}"
+                                           class="form-control"
+                                           placeholder="Type exam name..."
+                                           required />
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center">
+                                <label class="col-sm-3 text-start text-sm-end mb-0">Duration</label>
+                                <div class="col-sm-9">
+                                    <input type="text"
+                                           name="duration"
+                                           value="{{ exam.duration }}"
+                                           class="form-control"
+                                           placeholder="Dutarion in minutes..."
+                                           required />
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center">
+                                <label class="col-sm-3 text-start text-sm-end mb-0">Start date</label>
+                                <div class="col-sm-9">
+                                    <input type="datetime-local"
+                                           name="start_datetime"
+                                           value="{{ exam.start_datetime|date:'Y-m-d' }}T{{ exam.start_datetime|time:'H:i' }}"
+                                           class="form-control"
+                                           required />
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center">
+                                <label class="col-sm-3 text-start text-sm-end mb-0">Exam Type</label>
+                                <div class="col-sm-9">
+                                    <select class="form-select form-control"
+                                            name="exam_type"
+                                            data-msg-required="Please select an exam type"
+                                            required="">
+                                        <option value="mc" {% if exam.exam_type == "mc" %}selected{% endif %}>Multiple Choice</option>
+                                        <option value="essay" {% if exam.exam_type == "essay" %}selected{% endif %}>Open Questions</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row align-items-center">
+                                <label class="col-sm-3 text-start text-sm-end mb-0">Pass code</label>
+                                <div class="col-sm-9">
+                                    <input type="text"
+                                           name="pass_code"
+                                           value="{{ exam.pass_code }}"
+                                           class="form-control"
+                                           placeholder="Enter code"
+                                           required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade"
+             id="deleteModal{{ exam.id }}"
+             tabindex="-1"
+             aria-labelledby="deleteModal{{ exam.id }}Label"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModal{{ exam.id }}Label">Confirm Delete</h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">Are you sure you want to delete {{ exam.name }} exam?</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a href="{% url "delete_exam" exam.id %}"
+                           id="deleteExamLink"
+                           class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveBtn = document.getElementById('saveChangesBtn');
+        const formFields = document.querySelectorAll('#exam_form [required]');
+    
+        function checkFormValidity() {
+            let isValid = true;
+            formFields.forEach(field => {
+                if (field.value.trim() === '') {
+                    isValid = false;
+                }
+            });
+    
+            saveBtn.disabled = !isValid;
+        }
+    
+        // Initial check
+        checkFormValidity();
+    
+        // Check form validity on input change
+        formFields.forEach(field => {
+            field.addEventListener('input', checkFormValidity);
+        });
+    });
+    
+    </script>
+{% endblock content %}

@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+
+{% block content %}
+<style>
+    /* Disable text selection */
+    body {
+        -webkit-user-select: none; /* Safari */        
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+    }
+</style>
+<br>
+<br>
+<h1>{{ exam.name }}</h1>
+<h1>Duration: {{ exam.duration }} minutes</h1>
+<!-- Display countdown timer -->
+<h2 id="countdown"></h2>
+
+<br>
+<form action="{% url "submit_essay" exam.id %}" method="post" id="essayForm" hx-post="{% url 'essay_uncomplete' exam.id %}" hx-trigger="every 10s" hx-swap="none" hx-indicator="#countdown">
+    {% csrf_token %}
+    {% for question in questions %}
+    <div class="question">
+        <h4>{{ question.question }}</h4>
+        <textarea id="{{ question.pk }}" name="question_{{ question.pk }}" cols="100%" rows="20" hx-post="ignore"></textarea>
+    </div>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+// Countdown function
+function startCountdown(duration, display) {
+    let timer = duration * 60; // Convert minutes to seconds
+
+    let countdown = setInterval(function () {
+        let minutes = Math.floor(timer / 60);
+        let seconds = timer % 60;
+
+        // Display the countdown timer
+        display.textContent = minutes + "m " + seconds + "s ";
+
+        // Automatically submit the form when the timer reaches 0
+        if (--timer < 0) {
+            clearInterval(countdown);
+            document.getElementById('essayForm').submit(); // Submit the form
+        }
+    }, 1000); // Update the countdown every second
+}
+
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Get the countdown element
+let countdownDisplay = document.getElementById('countdown');
+
+// Start the countdown on page load
+window.onload = function () {
+    let examDuration = {{ exam.time_remaining }}; // Get exam duration from template variable
+    startCountdown(examDuration, countdownDisplay);
+
+    // Listen for textarea changes and submit the form after 3 seconds of inactivity
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach((textarea) => {
+        textarea.addEventListener('input', debounce(() => {
+            document.getElementById('essayForm').dispatchEvent(new Event('submit', { bubbles: true }));
+        }, 3000));
+    });
+};
+</script>
+{% endblock content %}

@@ -1,0 +1,72 @@
+{% extends "index.html" %}
+
+{% block content %}
+<style>
+    /* Disable text selection */
+    body {
+        -webkit-user-select: none; /* Safari */        
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+    }
+    </style>
+<br>
+<br>
+<h1>{{ exam.name }}</h1>
+<h1>Duration: {{ exam.time_remaining }} minutes</h1>
+<!-- Display countdown timer -->
+<h2 id="countdown"></h2>
+
+<form action="{% url 'submit_mc' exam.id %}" method="post" class="mt-4" id="examForm">
+    {% csrf_token %}
+    {% for question in questions %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <p>{{ question }}</p>
+            <fieldset>
+                {% for option in question.options.all %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="option_{{ option.id }}" value="{{ option }}">
+                    <label class="form-check-label" for="option_{{ option.id }}">
+                        {{ option }}
+                    </label>
+                </div>
+                {% endfor %}
+            </fieldset>
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<script>
+// Countdown function
+function startCountdown(duration, display) {
+    let timer = duration * 60; // Convert minutes to seconds
+
+    let countdown = setInterval(function () {
+        let minutes = Math.floor(timer / 60);
+        let seconds = timer % 60;
+
+        // Display the countdown timer
+        display.textContent = minutes + "m " + seconds + "s ";
+
+        // Automatically submit the form when the timer reaches 0
+        if (--timer < 0) {
+            clearInterval(countdown);
+            document.getElementById('examForm').submit(); // Submit the form
+        }
+    }, 1000); // Update the countdown every second
+}
+
+// Get the countdown element
+let countdownDisplay = document.getElementById('countdown');
+
+// Start the countdown on page load
+window.onload = function () {
+    let examDuration = {{ exam.time_remaining}}; // Get exam duration from template variable
+    startCountdown(examDuration, countdownDisplay);
+};
+</script>
+{% endblock content %}

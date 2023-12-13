@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+{% block content %}
+    <br>
+    <br>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+    {% for question in questions %}
+        <h1>{{ question }}</h1>
+        <div id="options-container-{{ question.id }}">
+            {% include 'partials/options.html' with options=question.options.all question_id=question.id %}
+        </div>
+        <form action="{% url 'add_option_to_question' question.id %}"
+              method="post"
+              hx-post="{% url 'add_option_to_question' question.id %}"
+              hx-target="#options-container-{{ question.id }}"
+              hx-swap="outerHTML">
+            {% csrf_token %}
+            {{ option_form.as_p }}
+            <button type="submit" class="btn btn-primary" hx-trigger="click">Add</button>
+        </form>
+    {% endfor %}
+{% endblock content %}

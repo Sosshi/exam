@@ -1,0 +1,15 @@
+<form action="{% url "students_create" exam.id %}" method="post">
+    {% csrf_token %}
+    <label for="emails">add email</label>
+    <input type="email" name="student" id="email" required>
+    <button type="submit">Add Student</button>
+</form><br>
+
+passcode: {{exam.pass_code}}<br>
+exam id: {{exam.pk}}<br>
+
+<ul>
+    {% for student in students  %}
+        <li>{{student.student}}</li>
+    {% endfor %}
+</ul>

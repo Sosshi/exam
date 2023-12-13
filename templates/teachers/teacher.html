@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block content %}
+<br><br>
+<div class="row">
+    {% for exam in exams  %}
+    <div class="col-lg-3 col-sm-6">
+        <div class="featured-box featured-box-primary featured-box-effect-2">
+            <div class="box-content box-content-border-bottom">
+                <a href="{% url "create_essay_questions" exam.pk%}">
+                    <i class="icon-featured far fa-file-alt"></i>
+                <h4 class="font-weight-normal text-5 mt-3">{{exam}}</h4>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="col-lg-3 col-sm-6">
+        <div class="featured-box featured-box-secondary featured-box-effect-2">
+            <div class="box-content box-content-border-bottom">
+                <a href="{% url "create_exam" %}">
+                <i class="icon-featured far fa-plus"></i>
+                <h4 class="font-weight-normal text-5 mt-3"><strong class="font-weight-extra-bold">Create New Exam</strong></h4>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

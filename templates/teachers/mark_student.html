@@ -1,0 +1,12 @@
+<form action="{% url "mark_script" exam.id %}" method="post">
+    {% csrf_token %}
+    {% for answer in answers %}
+        <h4>{{answer.question}}</h4>
+        <p>{{answer}}</p>
+        <label for="comment_{{answer.id}}">Comment:</label>
+        <textarea name="comment_{{answer.id}}" value={{answer.comment}} id="comment_{{answer.id}}" cols="100%" rows="10"></textarea><br><br>
+        <label for="marks">Marks:</label>
+        <input type="number" value="{{answer.score}}" name="marks{{answer.id}}" id="marks{{answer.id}}">
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>

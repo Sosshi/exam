@@ -1,0 +1,56 @@
+{% extends "index.html" %}
+
+{% block content %}
+<br>
+<br><br>
+{% if exams %}
+<ul>
+    {% for exam in exams %}
+    {% if exam.exam_type == 'essay' %}
+    <li><a href="{% url 'write_essay' exam.pk %}">{{exam}}</a></li>
+    {% else %}
+    <li><a href="{% url 'write_mc' exam.pk %}">{{exam}}</a></li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+You are not enrolled in any exam yet <br><br>
+{% endif %}
+    <button class="btn btn-modern btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">
+        Enter classroom
+    </button>
+
+    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="formModalLabel">Access Exam</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url "join_exam" %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Exam Id</label>
+                            <div class="col-sm-9">
+                                <input type="number" name="exam_id" class="form-control" placeholder="Enter exam ID" required="">
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Pass code</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="pass_code" class="form-control" placeholder="Enter pass code" required="">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

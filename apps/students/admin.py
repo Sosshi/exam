@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import AnsweredExam, Answers
+
+admin.site.register(AnsweredExam)
+admin.site.register(Answers)

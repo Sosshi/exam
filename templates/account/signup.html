@@ -1,0 +1,63 @@
+{% extends "auth_base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <h2 class="font-weight-bold text-5 mb-0">Register as a student
+            </h2>
+            <form action="{% url 'account_signup' %}" id="frmSignUp" method="post">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="form-group col">
+                        <label for="id_email" class="form-label text-color-dark text-3">Email address <span class="text-color-danger">*</span></label>
+                        {{ form.email|add_class:"form-control form-control-lg text-4" }}
+                        {% for error in form.email.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col">
+                        <label for="id_password" class="form-label text-color-dark text-3">Password <span class="text-color-danger">*</span></label>
+                        {{ form.password1 |add_class:"form-control form-control-lg text-4" }}
+                        {% for error in form.password1.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col">
+                        <p class="text-2 mb-2">Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our <a href="#" class="text-decoration-none">privacy policy.</a></p>
+                    </div>
+                </div>
+                <div class="row justify-content-between">
+                    <div class="form-group col-md-auto">
+                        <a class="text-decoration-none text-color-dark text-color-hover-primary font-weight-semibold text-2" href="{% url "teacher_signup" %}">Register as a teacher</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col">
+                        <button type="submit" class="btn btn-dark btn-modern w-100 text-uppercase rounded-0 font-weight-bold text-3 py-3" data-loading-text="Loading...">Register</button>
+                        <div class="divider">
+                            <span class="bg-light px-4 position-absolute left-50pct top-50pct transform3dxy-n50">or</span>
+                        </div>
+                        <a href="#" class="btn btn-dark btn-modern w-100 text-transform-none rounded-0 font-weight-bold align-items-center d-inline-flex justify-content-center text-3 py-3" data-loading-text="Loading..."><i class="fab fa-github text-5 me-2"></i> Register With Github</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+{% block content %}
+    <br>
+    <br>
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <form class="contact-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col">
+                            <label class="form-label mb-1 text-2">Question</label>
+                            <textarea maxlength="5000"
+                                      data-msg-required="Add question"
+                                      rows="4"
+                                      class="form-control text-3 h-auto py-2"
+                                      name="question"
+                                      required></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label class="form-label mb-1 text-2">Marks</label>
+                            <input type="number"
+                                   value=""
+                                   data-msg-required="Please enter your email address."
+                                   data-msg-email="Enter marks"
+                                   maxlength="100"
+                                   class="form-control text-3 h-auto py-2"
+                                   name="marks"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <button type="submit"
+                                    value="Submit Form"
+                                    class="btn btn-primary"
+                                    hx-post="{% url "create_essay_questions_form" exam.id %}"
+                                    hx-target="#questions">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <a href="{% url "students_create" exam.id %}">Add students</a>
+    <div id="questions">{% include "partials/questions.html" %}</div>
+{% endblock content %}
