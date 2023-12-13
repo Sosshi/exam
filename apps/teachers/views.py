@@ -4,21 +4,18 @@ from django.contrib import messages
 from django.views.generic import TemplateView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse, JsonResponse
-from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
 
 from .models import Exam, Question, Option, Result, Students
 from .forms import QuestionForm, OptionForm, ExamForm, StudentForm
 from ..students.models import AnsweredExam, Answers
+from .decorators import teacher_required
+from .mixin import TeacherRequiredMixin
+from .utils import send_result_emails
 
 
-class TeacherView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+class TeacherView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
     template_name = "teachers/teacher.html"
-
-    def test_func(self):
-        return self.request.user.is_teacher
-
-    def handle_no_permission(self):
-        return redirect(reverse("student"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -44,10 +41,11 @@ class ExamCreateView(CreateView):
         return context
 
 
+@teacher_required
+@login_required
 def create_exam(request):
     if request.method == "POST":
         exam_form = ExamForm(request.POST)
-        print(exam_form.errors.as_json())
         if exam_form.is_valid():
             exam = exam_form.save(commit=False)
             exam.teacher = request.user
@@ -62,6 +60,8 @@ def create_exam(request):
     return render(request, "teachers/create_exam.html", {"exams": exams})
 
 
+@teacher_required
+@login_required
 def essay_question_create_page(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     question_form = QuestionForm(request.POST or None)
@@ -78,6 +78,8 @@ def essay_question_create_page(request, exam_id):
     return render(request, "teachers/create_essay_questions.html", context)
 
 
+@teacher_required
+@login_required
 def essay_question_create(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     question_form = QuestionForm(request.POST)
@@ -98,6 +100,8 @@ def essay_question_create(request, exam_id):
         )
 
 
+@teacher_required
+@login_required
 def multiple_choice_quections(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     question_form = QuestionForm(request.POST or None)
@@ -119,24 +123,16 @@ def multiple_choice_quections(request, exam_id):
     return render(request, "teachers/create_mm_questions.html", context)
 
 
-def add_option_to_question(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    option_form = OptionForm(request.POST)
-    if request.method == "POST":
-        if option_form.is_valid():
-            option = option_form.save(commit=False)
-            option.question = question
-            option.save()
-            return redirect("create_mc_questions", question.exam.pk)
-    redirect("create_mc_questions", question.exam.pk)
-
-
+@teacher_required
+@login_required
 def written_scripts(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     answers = AnsweredExam.objects.filter(exam=exam)
     return render(request, "teachers/mark.html", {"exam": exam, "answers": answers})
 
 
+@teacher_required
+@login_required
 def written_script_mark(request, answered_exam_id):
     answered_exam = get_object_or_404(AnsweredExam, pk=answered_exam_id)
     answers = answered_exam.exam_answers.all()
@@ -147,6 +143,8 @@ def written_script_mark(request, answered_exam_id):
     )
 
 
+@teacher_required
+@login_required
 def mark(request, answer_exam_id):
     answer_exam = get_object_or_404(AnsweredExam, pk=answer_exam_id)
     answers = Answers.objects.filter(answered_exam=answer_exam)
@@ -167,6 +165,8 @@ def mark(request, answer_exam_id):
     return redirect("scripts", answer_exam.exam.pk)
 
 
+@teacher_required
+@login_required
 def delete_exam(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     exam.delete()
@@ -174,6 +174,8 @@ def delete_exam(request, exam_id):
     return redirect(reverse("create_exam"))
 
 
+@teacher_required
+@login_required
 def delete_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     exam_question = question.exam
@@ -182,26 +184,35 @@ def delete_question(request, question_id):
     return redirect("create_essay_questions", exam_question.pk)
 
 
+@teacher_required
+@login_required
 def add_option_to_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    option_form = OptionForm(request.POST)
 
     if request.method == "POST":
+        option_form = OptionForm(request.POST)
         if option_form.is_valid():
             option = option_form.save(commit=False)
             option.question = question
             option.save()
-
-            # Render the updated options as HTML
             messages.success(request, "The Option was created successfully.")
             return render(
                 request, "partials/options.html", {"options": question.options.all()}
             )
+        else:
+            messages.error(request, "Invalid data. The Option creation failed.")
+    else:
+        option_form = OptionForm()
 
-    messages.error(request, "The Option creation failed.")
-    return render(request, "partials/options.html", {"options": question.options.all()})
+    return render(
+        request,
+        "partials/options.html",
+        {"options": question.options.all(), "option_form": option_form},
+    )
 
 
+@teacher_required
+@login_required
 def delete_option(request, option_id):
     option = get_object_or_404(Option, pk=option_id)
     question_id = (
@@ -225,6 +236,8 @@ class StudentsCreateView(CreateView):
     context_object_name = "students"
 
 
+@teacher_required
+@login_required
 def students_create(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     student_form = StudentForm(request.POST or None)
@@ -247,3 +260,18 @@ def students_create(request, exam_id):
         "teachers/register_student.html",
         {"exam": exam, "student_form": student_form, "students": students},
     )
+
+
+@teacher_required
+@login_required
+def results_view(request, exam_id):
+    exam = get_object_or_404(Exam, pk=exam_id)
+    results = Result.objects.filter(exam=exam)
+    return render(request, "teachers/results.html", {"exam": exam, "results": results})
+
+
+@teacher_required
+@login_required
+def send_emails(request, exam_id):
+    send_result_emails(exam_id=exam_id)
+    return redirect("results_view", exam_id)

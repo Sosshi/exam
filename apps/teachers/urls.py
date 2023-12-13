@@ -15,6 +15,8 @@ from .views import (
     add_option_to_question,
     written_script_mark,
     delete_question,
+    results_view,
+    send_emails,
 )
 
 urlpatterns = [
@@ -56,4 +58,6 @@ urlpatterns = [
     ),
     path("delete_option/<int:option_id>/", delete_option, name="delete_option"),
     path("students/<int:exam_id>/", students_create, name="students_create"),
+    path("results/<int:exam_id>/", results_view, name="results_view"),
+    path("send_emails/<int:exam_id>/", send_emails, name="send_emails"),
 ]

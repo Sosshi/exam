@@ -6,13 +6,16 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 from ..teachers.models import Exam, Question, Option, Result, Students
 
 from .models import Answers, AnsweredExam
 
 
-class StudentView(TemplateView):
+class StudentView(LoginRequiredMixin, TemplateView):
     template_name = "students/student.html"
 
     def get_context_data(self, **kwargs):
@@ -26,6 +29,7 @@ class StudentView(TemplateView):
         return context
 
 
+@login_required
 def write_essay(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     questions = exam.questions.all()
@@ -43,6 +47,7 @@ def write_essay(request, exam_id):
     )
 
 
+@login_required
 def write_mc(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     questions = exam.questions.all()
@@ -71,60 +76,52 @@ def format_remaining_time(minutes):
     return remaining_time_str
 
 
-@csrf_exempt
 @require_POST
-def save_answer(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    answer_text = request.POST.get("answer_text")
-
-    answer, created = Answers.objects.get_or_create(question=question)
-    answer.answer = answer_text
-    answer.save()
-
-    return JsonResponse({"status": "success"})
-
-
+@login_required
 def submit_mc(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     if request.method == "POST":
-        total_marks = 0
-
+        total_correct_answers = 0
         questions = Question.objects.filter(exam=exam)
         for question in questions:
             submitted_option_id = request.POST.get(f"question_{question.id}")
-            print(f"question_{question.id}")
-            print(submitted_option_id)
             correct_option = Option.objects.get(question=question, is_answer=True)
-            print(correct_option)
-            if str(submitted_option_id) == str(correct_option):
-                total_marks += 1
+            if str(submitted_option_id) == str(correct_option.id):
+                total_correct_answers += 1
+        percentage_correct = total_correct_answers / questions.count()
+
         result = Result(
             student=request.user,
             exam=exam,
-            total_marks=(total_marks / questions.count()),
+            total_marks=percentage_correct,
         )
         result.save()
+
         return redirect("success")
     else:
         pass
+    return HttpResponse(405)
 
 
+@require_POST
+@login_required
 def submit_essay(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
-    answered_exam = AnsweredExam.objects.filter(exam=exam, student=request.user)
     answered_exam = AnsweredExam.objects.create(exam=exam, student=request.user)
     questions = Question.objects.filter(exam=exam)
-    for question in questions:
-        question_answer = request.POST.get(f"question_{question.id}")
-        print(question_answer)
-        answer = Answers(
-            question=question, answer=question_answer, answered_exam=answered_exam
-        )
-        answer.save()
+    try:
+        for question in questions:
+            question_answer = request.POST.get(f"question_{question.id}")
+            answer = Answers(
+                question=question, answer=question_answer, answered_exam=answered_exam
+            )
+            answer.save()
         return redirect("success")
-    return redirect("failed")
+    except Exception as e:
+        return redirect("failed")
 
 
+@login_required
 def submit_uncompleted_essay(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     questions = Question.objects.filter(exam=exam)
@@ -145,18 +142,18 @@ def submit_uncompleted_essay(request, exam_id):
         return HttpResponse(200)
 
 
-class SubmittedSuccessfully(TemplateView):
+class SubmittedSuccessfully(LoginRequiredMixin, TemplateView):
     template_name = "students/success.html"
 
 
+@require_POST
+@login_required
 def join_exam(request):
     exam_pass_code = request.POST.get("pass_code")
     exam_id = request.POST.get("exam_id")
     exam = get_object_or_404(Exam, pk=int(exam_id))
     exams = Exam.objects.all()
-    print(exam_pass_code, exam_id)
     if request.POST:
-        print(exam_pass_code, exam_id, exams)
         for exam in exams:
             if exam.pass_code == exam_pass_code and exam.pk == int(exam_id):
                 student = Students(exam=exam, student=request.user.email)
@@ -167,5 +164,6 @@ def join_exam(request):
     return redirect("student")
 
 
+@login_required
 def already_submitted(request):
     return render(request, "students/Already_submitted.html")

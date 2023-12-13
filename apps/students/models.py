@@ -19,7 +19,7 @@ class AnsweredExam(models.Model):
         return True
 
     def __str__(self) -> str:
-        return self.student.email
+        return f"{self.student}"
 
 
 class Answers(models.Model):
@@ -29,12 +29,12 @@ class Answers(models.Model):
     question = models.ForeignKey(
         Question, related_name="answers", on_delete=models.CASCADE
     )
-    answer = models.TextField()
+    answer = models.TextField(null=True, blank=True)
     score = models.FloatField(null=True, blank=True)
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
-        return self.answer
+        return f"{self.answer}"
 
 
 class MultipleChoiceQuestions(models.Model):
