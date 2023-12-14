@@ -1,15 +1,72 @@
+{% extends "index.html" %}
+
+{% block content %}
+<br>
+<br>
 <form action="{% url "students_create" exam.id %}" method="post">
     {% csrf_token %}
     <label for="emails">add email</label>
-    <input type="email" name="student" id="email" required>
-    <button type="submit">Add Student</button>
+    <input class="form-control" type="email" name="student" id="email" required>
+    <br>
+    <button class="btn btn-primary" type="submit">Add Student</button>
 </form><br>
+
 
 passcode: {{exam.pass_code}}<br>
 exam id: {{exam.pk}}<br>
 
-<ul>
-    {% for student in students  %}
-        <li>{{student.student}}</li>
-    {% endfor %}
-</ul>
+<br>
+{% if students %}
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">student email</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ student.student }}</td>
+            <td>
+                <a href="{% url 'delete_student' student.pk exam.id %}" class="btn btn-danger">
+                    Delete
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+  {% else %}
+  <h1>No student added yet</h1>
+  {% endif %}
+
+  {% for student in students  %}
+  <!-- Modal -->
+  <div class="modal fade" id="confirmDeleteModal{{ student.pk }}" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this student?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form action="{% url 'delete_student' student.pk exam.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+  
+  {% endfor %}
+{% endblock content %}

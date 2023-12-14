@@ -296,3 +296,16 @@ def send_emails(request, exam_id):
     send_result_emails(exam_id=exam_id)
     messages.success(request, f"Emails sent successfully")
     return redirect("results_view", exam_id)
+
+
+@teacher_required
+@login_required
+def delete_student(request, student_id, exam_id):
+    exam = get_object_or_404(Exam, pk=exam_id)
+    student = get_object_or_404(Students, pk=student_id, exam=exam)
+    if student.exam.teacher == request.user:
+        student.delete()
+        messages.success(request, f"Student deleted successfully")
+        return redirect("students_create", student.exam.id)
+    messages.error(request, f"You cannot delete things you did not create")
+    return redirect("teacher")

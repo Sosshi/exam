@@ -18,6 +18,7 @@ from .views import (
     results_view,
     send_emails,
     delete_mc_question,
+    delete_student,
 )
 
 urlpatterns = [
@@ -66,4 +67,9 @@ urlpatterns = [
     path("students/<int:exam_id>/", students_create, name="students_create"),
     path("results/<int:exam_id>/", results_view, name="results_view"),
     path("send_emails/<int:exam_id>/", send_emails, name="send_emails"),
+    path(
+        "delete_student/<int:student_id>/<int:exam_id>/",
+        delete_student,
+        name="delete_student",
+    ),
 ]
