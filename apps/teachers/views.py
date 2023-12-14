@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 
 from .models import Exam, Question, Option, Result, Students
-from .forms import QuestionForm, OptionForm, ExamForm, StudentForm
+from .forms import QuestionForm, OptionForm, ExamForm, StudentForm, McQuestionForm
 from ..students.models import AnsweredExam, Answers
 from .decorators import teacher_required
 from .mixin import TeacherRequiredMixin
@@ -64,18 +64,21 @@ def create_exam(request):
 @login_required
 def essay_question_create_page(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
-    question_form = QuestionForm(request.POST or None)
+    if exam.exam_type == "essay":
+        question_form = QuestionForm(request.POST or None)
 
-    if request.method == "POST":
-        if question_form.is_valid():
-            question = question_form.save(commit=False)
-            question.exam = exam
-            question.save()
-            question_form = QuestionForm()
+        if request.method == "POST":
+            if question_form.is_valid():
+                question = question_form.save(commit=False)
+                question.exam = exam
+                question.save()
+                question_form = QuestionForm()
 
-    questions = exam.questions.all()
-    context = {"questions": questions, "form": question_form, "exam": exam}
-    return render(request, "teachers/create_essay_questions.html", context)
+        questions = exam.questions.all()
+        context = {"questions": questions, "form": question_form, "exam": exam}
+        return render(request, "teachers/create_essay_questions.html", context)
+    messages.error(request, f"{exam.name} is not an essay question")
+    return redirect("create_exam")
 
 
 @teacher_required
@@ -104,23 +107,30 @@ def essay_question_create(request, exam_id):
 @login_required
 def multiple_choice_quections(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
-    question_form = QuestionForm(request.POST or None)
+    if exam.exam_type == "mc":
+        question_form = McQuestionForm(request.POST or None)
 
-    if request.method == "POST":
-        if question_form.is_valid():
-            question = question_form.save(commit=False)
-            question.exam = exam
-            question.save()
-            question_form = QuestionForm()
+        if request.method == "POST":
+            if question_form.is_valid():
+                question = question_form.save(commit=False)
+                question.exam = exam
+                question.save()
+                option = request.POST.get("option")
+                option = Option.objects.create(
+                    question=question, name=option, is_answer=True
+                )
+                question_form = McQuestionForm()
 
-    questions = exam.questions.all()
-    context = {
-        "questions": questions,
-        "form": question_form,
-        "message": messages,
-        "option_form": OptionForm(),
-    }
-    return render(request, "teachers/create_mm_questions.html", context)
+        questions = exam.questions.all()
+        context = {
+            "questions": questions,
+            "form": question_form,
+            "message": messages,
+            "option_form": OptionForm(),
+        }
+        return render(request, "teachers/create_mm_questions.html", context)
+    messages.error(request, f"{exam.name} is not a multiple choice exam")
+    return redirect("create_exam")
 
 
 @teacher_required
@@ -182,6 +192,16 @@ def delete_question(request, question_id):
     question.delete()
     messages.success(request, f"{question.question} deleted successfully")
     return redirect("create_essay_questions", exam_question.pk)
+
+
+@teacher_required
+@login_required
+def delete_mc_question(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    exam_question = question.exam
+    question.delete()
+    messages.success(request, f"{question.question} deleted successfully")
+    return redirect("create_mc_questions", exam_question.pk)
 
 
 @teacher_required
@@ -274,4 +294,5 @@ def results_view(request, exam_id):
 @login_required
 def send_emails(request, exam_id):
     send_result_emails(exam_id=exam_id)
+    messages.success(request, f"Emails sent successfully")
     return redirect("results_view", exam_id)

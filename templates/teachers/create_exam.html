@@ -19,40 +19,44 @@
             </div>
         {% endfor %}
     {% endif %}
-    {% if exams %}
-        <ul class="list list-icons list-primary list-borders">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col"># Exam ID</th>
+                <th scope="col">Exam name</th>
+                <th scope="col">Duration(mins)</th>
+                <th scope="col"># of Questions</th>
+                <th scope="col">pass_code</th>
+                <th scope="col">Results</th>
+                <th scope="col">Delete exam</th>
+                <th scope="col">Update exam</th>
+            </tr>
+            </thead>
+            <tbody>
             {% for exam in exams %}
-                {% if exam.exam_type == 'essay' %}
-                    <li class="d-flex justify-content-between">
-                        <a href="{% url "create_essay_questions" exam.pk %}">
-                            <i class="fas fa-file"></i> {{ exam }}<span class="badge bg-primary rounded-pill mx-2">{{ exam.count_questions }}</span></a>
-                        <div>
-                            <i class="fas fa-pencil-alt btn btn-primary mx-2"
-                               data-bs-toggle="modal"
-                               data-bs-target="#formModal{{ exam.id }}">
-                            </i><i class="fas fa-trash btn btn-danger"
-   data-bs-toggle="modal"
-   data-bs-target="#deleteModal{{ exam.id }}"></i>
-                        </div>
-                    </li>
+            <tr>
+                <th scope="row">{{exam.pk}}</th>
+                {% if exam.exam_type == 'essay'%}
+                <td><a href="{% url "create_essay_questions" exam.id %}">{{exam.name}}</a></td>
                 {% else %}
-                    <li class="d-flex justify-content-between">
-                        <a href="{% url "create_mc_questions" exam.pk %}"><i class="fas fa-file"></i> {{ exam }}<span class="badge bg-primary rounded-pill mx-2">{{ exam.count_questions }}</span></a>
-                        <div>
-                            <i class="fas fa-pencil-alt btn btn-primary mx-2"
-                               data-bs-toggle="modal"
-                               data-bs-target="#formModal">
-                            </i><i class="fas fa-trash btn btn-danger"
-   data-bs-toggle="modal"
-   data-bs-target="#deleteModal{{ exam.id }}"></i>
-                        </div>
-                    </li>
+                <td><a href="{% url "create_mc_questions" exam.id %}">{{exam.name}}</a></td>
                 {% endif %}
+                <td>{{exam.duration}}</td>
+                <td>{{exam.count_questions}}</td>
+                <td>{{exam.pass_code}}</td>
+                {% if exam.results_count < 1 %}
+                <td><button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#results_no">Results</button></td>
+                {% else %}
+                <td><a href="{% url "results_view" exam.id%}" class="btn btn-secondary">Results</a></td>
+                {% endif %}
+                <td><button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ exam.id }}">Delete</button></td>
+                <td><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal{{ exam.id }}">Update</button></td>
+            </tr>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>No exam created yet</p>
-    {% endif %}
+            </tbody>
+        </table>
+    </div>
     <div class="modal fade"
          id="formModal"
          tabindex="-1"
@@ -247,7 +251,30 @@
             </div>
         </div>
     {% endfor %}
-    <script>
+
+    <div class="modal fade"
+    id="results_no"
+    tabindex="-1"
+    aria-labelledby="results_noLabel"
+    aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="results_noLabel">No results</h5>
+               <button type="button"
+                       class="btn-close"
+                       data-bs-dismiss="modal"
+                       aria-label="Close"></button>
+           </div>
+           <div class="modal-body">There are not any results to view</div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+           </div>
+       </div>
+   </div>
+</div>
+
+      <script>
     document.addEventListener('DOMContentLoaded', function() {
         const saveBtn = document.getElementById('saveChangesBtn');
         const formFields = document.querySelectorAll('#exam_form [required]');

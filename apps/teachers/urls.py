@@ -17,6 +17,7 @@ from .views import (
     delete_question,
     results_view,
     send_emails,
+    delete_mc_question,
 )
 
 urlpatterns = [
@@ -51,6 +52,11 @@ urlpatterns = [
     path("mark/<int:answer_exam_id>/", mark, name="mark_script"),
     path("delete/<int:exam_id>", delete_exam, name="delete_exam"),
     path("delete_question/<int:question_id>", delete_question, name="delete_question"),
+    path(
+        "delete_mc_question/<int:question_id>",
+        delete_mc_question,
+        name="delete_mc_question",
+    ),
     path(
         "add_option_to_question/<int:question_id>/",
         add_option_to_question,

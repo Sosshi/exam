@@ -8,10 +8,18 @@ class QuestionForm(forms.ModelForm):
         fields = ["question", "marks"]
 
 
+class McQuestionForm(forms.ModelForm):
+    option = forms.CharField(max_length=200)
+
+    class Meta:
+        model = Question
+        fields = ["question", "marks"]
+
+
 class OptionForm(forms.ModelForm):
     class Meta:
         model = Option
-        fields = ["name", "is_answer"]
+        fields = ["name"]
 
 
 class ExamForm(forms.ModelForm):

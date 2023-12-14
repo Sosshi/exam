@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+<br><br>
+
+<h1>{{exam.name}}</h1>
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#send_email"> Send emails</button>
+{% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                <strong>{{ message.tags }}!</strong> {{ message }}.
+            </div>
+        {% endfor %}
+    <hr>
+    {% endif %}
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Student</th>
+        <th scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+      <tr>
+        <td scope="row">{{result.student}}</td>
+        <td>{{result.marks_to_percent}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+<div class="modal fade"
+         id="send_email"
+         tabindex="-1"
+         aria-labelledby="send_emailLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="send_emailLabel">Confirm</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to send results to all students?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{% url "send_emails" exam.id %}"
+                       id="deletequestionLink"
+                       class="btn btn-primary">Confirm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

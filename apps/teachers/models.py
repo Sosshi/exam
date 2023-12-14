@@ -20,6 +20,9 @@ class Exam(models.Model):
     def count_questions(self):
         return self.questions.count()
 
+    def results_count(self):
+        return self.results.count()
+
     def calculate_end_datetime(self):
         duration_in_minutes = self.duration
         start_datetime = self.start_datetime

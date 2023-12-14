@@ -24,7 +24,7 @@
         <div class="card-body">
             <p>{{ question }}</p>
             <fieldset>
-                {% for option in question.options.all %}
+                {% for option in question.options.all|random  %}
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="option_{{ option.id }}" value="{{ option }}">
                     <label class="form-check-label" for="option_{{ option.id }}">

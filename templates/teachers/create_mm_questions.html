@@ -1,14 +1,26 @@
 {% extends "index.html" %}
+{% load widget_tweaks %}
 {% block content %}
     <br>
     <br>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Submit">
+        <label for="question">Question</label>
+        {{ form.question|add_class:"form-control" }}
+        <label for="option">Correct Answer option</label>
+        {{ form.option|add_class:"form-control" }}
+        <label for="marks">Marks</label>
+        {{form.marks|add_class:"form-control" }}
+        <br>
+        <input type="submit" class="btn btn primary" value="Submit">
     </form>
     {% for question in questions %}
-        <h1>{{ question }}</h1>
+        <h1>{{ question }} <i class="btn btn-danger fas fa-trash-alt"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteModal{{ question.id }}">
+         </i><i class="btn btn-primary fas fa-pencil-alt mx-2"
+data-bs-toggle="modal"
+data-bs-target="#formModal{{ question.id }}"></i></h1>
         <div id="options-container-{{ question.id }}">
             {% include 'partials/options.html' with options=question.options.all question_id=question.id %}
         </div>
@@ -19,7 +31,88 @@
               hx-swap="outerHTML">
             {% csrf_token %}
             {{ option_form.as_p }}
-            <button type="submit" class="btn btn-primary" hx-trigger="click">Add</button>
+            <button type="submit" class="btn btn-secondary" hx-trigger="click">Add</button>
         </form>
     {% endfor %}
+
+    {% for question in questions %}
+    <div class="modal fade"
+         id="formModal{{ question.id }}"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="formModal{{ question.id }}Label"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="formModal{{ question.id }}Label">Create question</h4>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="question_form"
+                          action=""
+                          method="POST"
+                          class="mb-4"
+                          novalidate="novalidate">
+                        {% csrf_token %}
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">Question</label>
+                            <div class="col-sm-9">
+                                <textarea maxlength="5000"
+                                          value="{{question.question}}"
+                                          data-msg-required="Add question"
+                                          rows="4"
+                                          class="form-control text-3 h-auto py-2"
+                                          name="question"
+                                          required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row align-items-center">
+                            <label class="col-sm-3 text-start text-sm-end mb-0">marks</label>
+                            <div class="col-sm-9">
+                                <input type="text"
+                                       name="duration"
+                                       value="{{ question.marks }}"
+                                       class="form-control"
+                                       placeholder="Dutarion in minutes..."
+                                       required />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade"
+         id="deleteModal{{ question.id }}"
+         tabindex="-1"
+         aria-labelledby="deleteModal{{ question.id }}Label"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModal{{ question.id }}Label">Confirm Delete</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete "{{ question.question }}" question?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{% url "delete_mc_question" question.id %}"
+                       id="deletequestionLink"
+                       class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
 {% endblock content %}

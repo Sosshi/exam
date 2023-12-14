@@ -22,11 +22,14 @@
     {% csrf_token %}
     {% for question in questions %}
     <div class="question">
-        <h4>{{ question.question }}</h4>
-        <textarea id="{{ question.pk }}" name="question_{{ question.pk }}" cols="100%" rows="20" hx-post="ignore"></textarea>
+        <h4>{{ forloop.counter }}. {{ question.question }}</h4>
+        <textarea id="{{ question.pk }}" class="form-control" name="question_{{ question.pk }}" cols="100%" rows="20" hx-post="ignore"></textarea>
     </div>
+
+    <br>
+    <hr>
     {% endfor %}
-    <button type="submit">Submit</button>
+    <button class="btn btn-primary" type="submit">Submit</button>
 </form>
 
 <script>

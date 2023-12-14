@@ -1,10 +1,21 @@
+{% extends "index.html" %}
+
+
+{% block content %}
 <h1>{{exam.name}}</h1>
 
-<h2>Marked Scripts</h2>
-{% for answer in answers %}
-    {% if answer.is_marked %}
-        <a href="">{{answer.student}}</a><br>
-    {% else %}
-        <a href="{% url "written_script_mark" answer.id %}">{{answer.student}}(Not Marked)</a><br>
-    {% endif %}
+
+{% if answers %}
+<h3>Written Scripts</h3>
+    {% for answer in answers %}
+        {% if answer.is_marked %}
+            <a href="">{{answer.student}}</a><br>
+        {% else %}
+            <a href="{% url "written_script_mark" answer.id %}">{{answer.student}}(Not Marked)</a><br>
+        {% endif %}
+
 {% endfor %}
+{% else %}
+<h1>No Scripts Submitted yet</h1>
+{% endif %}
+{% endblock content %}

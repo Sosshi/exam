@@ -45,5 +45,6 @@
         </div>
     </div>
     <a href="{% url "students_create" exam.id %}">Add students</a>
+    <a class="btn btn-primary" href="{% url "scripts" exam.id %}">Mark Scripts</a>
     <div id="questions">{% include "partials/questions.html" %}</div>
 {% endblock content %}
