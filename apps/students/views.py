@@ -51,24 +51,32 @@ def write_essay(request, exam_id):
 def write_mc(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     questions = exam.questions.all()
-
+    result = Result.objects.filter(exam=exam, student=request.user)
+    if result:
+        return render(
+            request,
+            "students/already_written.html",
+        )
     if exam.is_within_exam_time():
         return render(
             request, "students/write_mc.html", {"exam": exam, "questions": questions}
         )
+    if exam.start_datetime > timezone.now():
+        minutes_until_start = exam.minutes_until_start()
+        remaining_time_str = format_remaining_time(minutes_until_start)
 
-    minutes_until_start = exam.minutes_until_start()
-    remaining_time_str = format_remaining_time(minutes_until_start)
-
+        return render(
+            request,
+            "students/time_check.html",
+            {"remaining_time_str": remaining_time_str},
+        )
     return render(
-        request, "students/time_check.html", {"remaining_time_str": remaining_time_str}
+        request,
+        "students/time_check_late.html",
     )
 
 
 def format_remaining_time(minutes):
-    if minutes <= 0:
-        return "Exam has already started"
-
     days, hours = divmod(minutes, 1440)
     hours, mins = divmod(hours, 60)
     remaining_time_str = f"{days} days, {hours} hours, {mins} minutes"

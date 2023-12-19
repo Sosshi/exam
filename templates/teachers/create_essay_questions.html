@@ -7,26 +7,26 @@
             <div class="col">
                 <form class="contact-form">
                     {% csrf_token %}
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="form-group col">
-                            <label class="form-label mb-1 text-2">Question</label>
+                            <label class="form-label mb-1 fs-5">Question</label>
                             <textarea maxlength="5000"
                                       data-msg-required="Add question"
                                       rows="4"
-                                      class="form-control text-3 h-auto py-2"
+                                      class="form-control fs-6 py-2"
                                       name="question"
                                       required></textarea>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="form-group col-lg-6">
-                            <label class="form-label mb-1 text-2">Marks</label>
+                            <label class="form-label mb-1 fs-5">Marks</label>
                             <input type="number"
                                    value=""
                                    data-msg-required="Please enter your email address."
                                    data-msg-email="Enter marks"
                                    maxlength="100"
-                                   class="form-control text-3 h-auto py-2"
+                                   class="form-control fs-6 py-2"
                                    name="marks"
                                    required>
                         </div>
@@ -36,7 +36,7 @@
                             <button type="submit"
                                     value="Submit Form"
                                     class="btn btn-primary"
-                                    hx-post="{% url "create_essay_questions_form" exam.id %}"
+                                    hx-post="{% url 'create_essay_questions_form' exam.id %}"
                                     hx-target="#questions">Submit</button>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
             </div>
         </div>
     </div>
-    <a href="{% url "students_create" exam.id %}">Add students</a>
-    <a class="btn btn-primary" href="{% url "scripts" exam.id %}">Mark Scripts</a>
+    <a href="{% url 'students_create' exam.id %}" class="btn btn-primary mt-3 me-2">Add students</a>
+    <a class="btn btn-primary mt-3" href="{% url 'scripts' exam.id %}">Mark Scripts</a>
     <div id="questions">{% include "partials/questions.html" %}</div>
 {% endblock content %}

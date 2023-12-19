@@ -1,29 +1,37 @@
 {% extends "index.html" %}
 
 {% block content %}
-<br><br>
-<div class="row">
-    {% for exam in exams  %}
-    <div class="col-lg-3 col-sm-6">
-        <div class="featured-box featured-box-primary featured-box-effect-2">
-            <div class="box-content box-content-border-bottom">
-                <a href="{% url "create_essay_questions" exam.pk%}">
-                    <i class="icon-featured far fa-file-alt"></i>
-                <h4 class="font-weight-normal text-5 mt-3">{{exam}}</h4>
-                </a>
+<br><br><br><br>
+    <div class="row">
+        {% for exam in exams  %}
+
+            <div class="col-lg-3 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        {% if exam.exam_type == "essay" %}
+                        <a href="{% url "create_essay_questions" exam.pk%}">
+                            <i class="icon-featured far fa-file-alt fa-4x d-block mb-4"></i>
+                            <h5 class="card-title font-weight-bold">{{ exam }}</h5>
+                        </a>
+                        {% else %}
+                        <a href="{% url "create_mc_questions" exam.pk%}">
+                            <i class="icon-featured far fa-file-alt fa-4x d-block mb-4"></i>
+                            <h5 class="card-title font-weight-bold">{{ exam }}</h5>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="col-lg-3 col-sm-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <a href="{% url "create_exam" %}">
+                        <i class="fas fa-plus fa-4x d-block mb-4"></i>
+                        <h5 class="card-title font-weight-bold">Create New Exam</h5>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
-    <div class="col-lg-3 col-sm-6">
-        <div class="featured-box featured-box-secondary featured-box-effect-2">
-            <div class="box-content box-content-border-bottom">
-                <a href="{% url "create_exam" %}">
-                <i class="icon-featured far fa-plus"></i>
-                <h4 class="font-weight-normal text-5 mt-3"><strong class="font-weight-extra-bold">Create New Exam</strong></h4>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock content %}

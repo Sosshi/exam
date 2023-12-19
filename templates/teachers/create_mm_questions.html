@@ -3,7 +3,7 @@
 {% block content %}
     <br>
     <br>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="mb-3">
         {% csrf_token %}
         <label for="question">Question</label>
         {{ form.question|add_class:"form-control" }}
@@ -12,8 +12,10 @@
         <label for="marks">Marks</label>
         {{form.marks|add_class:"form-control" }}
         <br>
-        <input type="submit" class="btn btn primary" value="Submit">
+        <input type="submit" class="btn btn-primary" value="Submit">
     </form>
+    <a href="{% url 'students_create' exam.id %}" class="btn btn-primary mt-3 me-2 mb-4">Add students</a>
+    <a class="btn btn-secondary mt-3 mb-4" href="{% url 'results_view' exam.id %}">View Results</a>
     {% for question in questions %}
         <h1>{{ question }} <i class="btn btn-danger fas fa-trash-alt"
             data-bs-toggle="modal"
@@ -28,7 +30,7 @@ data-bs-target="#formModal{{ question.id }}"></i></h1>
               method="post"
               hx-post="{% url 'add_option_to_question' question.id %}"
               hx-target="#options-container-{{ question.id }}"
-              hx-swap="outerHTML">
+              hx-swap="innerHTML">
             {% csrf_token %}
             {{ option_form.as_p }}
             <button type="submit" class="btn btn-secondary" hx-trigger="click">Add</button>

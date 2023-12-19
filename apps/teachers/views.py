@@ -127,6 +127,7 @@ def multiple_choice_quections(request, exam_id):
             "form": question_form,
             "message": messages,
             "option_form": OptionForm(),
+            "exam": exam,
         }
         return render(request, "teachers/create_mm_questions.html", context)
     messages.error(request, f"{exam.name} is not a multiple choice exam")

@@ -1,103 +1,96 @@
 {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"></button>
-            <strong>{{ message.tags }}!</strong> {{ message }}.
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <strong>{{ message.tags|lower|capfirst }}!</strong> {{ message }}.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-    {% endfor %}
+    </div>
 {% endif %}
-<ul class="list list-icons list-icons-style-2  mx-10">
-    {% for question in questions %}
-        <li class="d-flex justify-content-between">
-            <i class="fas fa-question"></i>
-            {{ question }}<span>({{ question.marks }}) Marks
-            <i class="btn btn-danger fas fa-trash-alt"
-               data-bs-toggle="modal"
-               data-bs-target="#deleteModal{{ question.id }}">
-            </i><i class="btn btn-primary fas fa-pencil-alt mx-2"
-   data-bs-toggle="modal"
-   data-bs-target="#formModal{{ question.id }}"></i></span>
-        </li>
-    {% endfor %}
-</ul>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Question</th>
+                        <th scope="col">Marks</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for question in questions %}
+                    <tr>
+                        <td>{{ question }}</td>
+                        <td>{{ question.marks }}</td>
+                        <td class="d-flex">
+                            <button type="button" class="btn btn-transparent text-danger fas fa-trash-alt"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal{{ question.id }}"></button>
+                            <button type="button" class="btn btn-transparent text-primary fas fa-pencil-alt ms-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#formModal{{ question.id }}"></button>
+                        </td>
+                    </tr>
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
 {% for question in questions %}
-    <div class="modal fade"
-         id="formModal{{ question.id }}"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="formModal{{ question.id }}Label"
-         aria-hidden="true">
+    <!-- Edit Modal -->
+    <div class="modal fade" id="formModal{{ question.id }}" tabindex="-1" role="dialog" aria-labelledby="formModal{{ question.id }}Label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="formModal{{ question.id }}Label">Create question</h4>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="formModal{{ question.id }}Label">Edit Question</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="question_form"
-                          action=""
-                          method="POST"
-                          class="mb-4"
-                          novalidate="novalidate">
+                    <form id="question_form_{{ question.id }}" action="" method="POST" class="mb-4" novalidate="novalidate">
                         {% csrf_token %}
-                        <div class="form-group row align-items-center">
-                            <label class="col-sm-3 text-start text-sm-end mb-0">Question</label>
-                            <div class="col-sm-9">
-                                <textarea maxlength="5000"
-                                          value="{{question.question}}"
-                                          data-msg-required="Add question"
-                                          rows="4"
-                                          class="form-control text-3 h-auto py-2"
-                                          name="question"
-                                          required></textarea>
-                            </div>
+                        <div class="mb-3">
+                            <label for="question{{ question.id }}" class="form-label">Question</label>
+                            <textarea maxlength="5000" data-msg-required="Add question" rows="4" class="form-control" name="question" required>{{question.question}}</textarea>
                         </div>
-                        <div class="form-group row align-items-center">
-                            <label class="col-sm-3 text-start text-sm-end mb-0">marks</label>
-                            <div class="col-sm-9">
-                                <input type="text"
-                                       name="duration"
-                                       value="{{ question.marks }}"
-                                       class="form-control"
-                                       placeholder="Dutarion in minutes..."
-                                       required />
-                            </div>
+                        <div class="mb-3">
+                            <label for="marks{{ question.id }}" class="form-label">Marks</label>
+                            <input type="text" name="marks" value="{{ question.marks }}" class="form-control" placeholder="Marks..." required />
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="saveChangesBtn_{{ question.id }}">Save Changes</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade"
-         id="deleteModal{{ question.id }}"
-         tabindex="-1"
-         aria-labelledby="deleteModal{{ question.id }}Label"
-         aria-hidden="true">
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal{{ question.id }}" tabindex="-1" aria-labelledby="deleteModal{{ question.id }}Label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteModal{{ question.id }}Label">Confirm Delete</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">Are you sure you want to delete "{{ question.question }}" question?</div>
+                <div class="modal-body">
+                    Are you sure you want to delete "{{ question.question }}" question?
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <a href="{% url "delete_question" question.id %}"
-                       id="deletequestionLink"
-                       class="btn btn-danger">Delete</a>
+                    <a href="{% url 'delete_question' question.id %}" id="deletequestionLink_{{ question.id }}" class="btn btn-danger">Delete</a>
                 </div>
             </div>
         </div>

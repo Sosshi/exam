@@ -1,3 +1,5 @@
+from random import shuffle
+
 from django.db import models
 from django.utils.text import slugify
 from datetime import timedelta, datetime
@@ -74,6 +76,11 @@ class Question(models.Model):
     exam = models.ForeignKey(Exam, related_name="questions", on_delete=models.CASCADE)
     question = models.TextField()
     marks = models.FloatField()
+
+    def shuffled_options(self):
+        options = list(self.options.all())
+        shuffle(options)
+        return options
 
     def __str__(self) -> str:
         return self.question
