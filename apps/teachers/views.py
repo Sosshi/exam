@@ -23,7 +23,7 @@ class TeacherView(LoginRequiredMixin, TeacherRequiredMixin, TemplateView):
         return context
 
 
-class ExamCreateView(CreateView):
+class ExamCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
     template_name = "teachers/create_exam.html"
     model = Exam
     form_class = ExamForm
@@ -41,8 +41,8 @@ class ExamCreateView(CreateView):
         return context
 
 
-@teacher_required
 @login_required
+@teacher_required
 def create_exam(request):
     if request.method == "POST":
         exam_form = ExamForm(request.POST)
@@ -60,8 +60,8 @@ def create_exam(request):
     return render(request, "teachers/create_exam.html", {"exams": exams})
 
 
-@teacher_required
 @login_required
+@teacher_required
 def essay_question_create_page(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     if exam.exam_type == "essay":
@@ -81,8 +81,8 @@ def essay_question_create_page(request, exam_id):
     return redirect("create_exam")
 
 
-@teacher_required
 @login_required
+@teacher_required
 def essay_question_create(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     question_form = QuestionForm(request.POST)
@@ -103,8 +103,8 @@ def essay_question_create(request, exam_id):
         )
 
 
-@teacher_required
 @login_required
+@teacher_required
 def multiple_choice_quections(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     if exam.exam_type == "mc":
@@ -133,16 +133,16 @@ def multiple_choice_quections(request, exam_id):
     return redirect("create_exam")
 
 
-@teacher_required
 @login_required
+@teacher_required
 def written_scripts(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     answers = AnsweredExam.objects.filter(exam=exam)
     return render(request, "teachers/mark.html", {"exam": exam, "answers": answers})
 
 
-@teacher_required
 @login_required
+@teacher_required
 def written_script_mark(request, answered_exam_id):
     answered_exam = get_object_or_404(AnsweredExam, pk=answered_exam_id)
     answers = answered_exam.exam_answers.all()
@@ -153,8 +153,8 @@ def written_script_mark(request, answered_exam_id):
     )
 
 
-@teacher_required
 @login_required
+@teacher_required
 def mark(request, answer_exam_id):
     answer_exam = get_object_or_404(AnsweredExam, pk=answer_exam_id)
     answers = Answers.objects.filter(answered_exam=answer_exam)
@@ -175,8 +175,8 @@ def mark(request, answer_exam_id):
     return redirect("scripts", answer_exam.exam.pk)
 
 
-@teacher_required
 @login_required
+@teacher_required
 def delete_exam(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     exam.delete()
@@ -184,8 +184,8 @@ def delete_exam(request, exam_id):
     return redirect(reverse("create_exam"))
 
 
-@teacher_required
 @login_required
+@teacher_required
 def delete_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     exam_question = question.exam
@@ -194,8 +194,8 @@ def delete_question(request, question_id):
     return redirect("create_essay_questions", exam_question.pk)
 
 
-@teacher_required
 @login_required
+@teacher_required
 def delete_mc_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     exam_question = question.exam
@@ -204,8 +204,8 @@ def delete_mc_question(request, question_id):
     return redirect("create_mc_questions", exam_question.pk)
 
 
-@teacher_required
 @login_required
+@teacher_required
 def add_option_to_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
 
@@ -231,16 +231,13 @@ def add_option_to_question(request, question_id):
     )
 
 
-@teacher_required
 @login_required
+@teacher_required
 def delete_option(request, option_id):
     option = get_object_or_404(Option, pk=option_id)
-    question_id = (
-        option.question.id
-    )  # Assuming Option model has a ForeignKey field 'question'
+    question_id = option.question.id
     option.delete()
 
-    # Return updated options as HTML
     options = Option.objects.filter(question_id=question_id)
 
     return render(
@@ -250,14 +247,14 @@ def delete_option(request, option_id):
     )
 
 
-class StudentsCreateView(CreateView):
+class StudentsCreateView(LoginRequiredMixin, TeacherRequiredMixin, CreateView):
     template_name = "teachers/register_student.html"
     form_class = StudentForm
     context_object_name = "students"
 
 
-@teacher_required
 @login_required
+@teacher_required
 def students_create(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     student_form = StudentForm(request.POST or None)
@@ -282,24 +279,24 @@ def students_create(request, exam_id):
     )
 
 
-@teacher_required
 @login_required
+@teacher_required
 def results_view(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     results = Result.objects.filter(exam=exam)
     return render(request, "teachers/results.html", {"exam": exam, "results": results})
 
 
-@teacher_required
 @login_required
+@teacher_required
 def send_emails(request, exam_id):
     send_result_emails(exam_id=exam_id)
     messages.success(request, f"Emails sent successfully")
     return redirect("results_view", exam_id)
 
 
-@teacher_required
 @login_required
+@teacher_required
 def delete_student(request, student_id, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     student = get_object_or_404(Students, pk=student_id, exam=exam)

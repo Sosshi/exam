@@ -24,22 +24,7 @@
 		<link id="googleFonts" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CShadows+Into+Light&display=swap" rel="stylesheet" type="text/css">
 
 		<!-- Vendor CSS -->
-		<link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
-		<link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
-		<link rel="stylesheet" href="{% static 'vendor/animate/animate.compat.css' %}">
-		<link rel="stylesheet" href="{% static 'vendor/simple-line-icons/css/simple-line-icons.min.css' %} ">
-		<link rel="stylesheet" href="{% static 'vendor/owl.carousel/assets/owl.carousel.min.css' %} ">
-		<link rel="stylesheet" href="{% static 'vendor/owl.carousel/assets/owl.theme.default.min.css' %} ">
-		<link rel="stylesheet" href="{% static 'vendor/magnific-popup/magnific-popup.min.css' %}">
-
-		<!-- Theme CSS -->
-		<link rel="stylesheet" href="{% static 'css/theme.css' %} ">
-		<link rel="stylesheet" href="{% static 'css/theme-elements.css' %} ">
-		<link rel="stylesheet" href=" {% static 'css/theme-blog.css' %}">
-		<link rel="stylesheet" href="{% static 'css/theme-shop.css' %} ">
-
-		<!-- Skin CSS -->
-		<link id="skinCSS" rel="stylesheet" href="{% static 'css/skins/default.css' %} ">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
 		<!-- Theme Custom CSS -->
 		<link rel="stylesheet" href="{% static 'css/custom.css' %} ">
@@ -48,75 +33,46 @@
 	</head>
 	<body>
 
-        <header id="header" class="header-effect-shrink" data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': true, 'stickyStartAt': 30, 'stickyHeaderContainerHeight': 70}" style="height: 104px;">
-			<div class="header-body" style="">
-				<div class="header-container container" style="height: 100px;">
-					<div class="header-row">
-						<div class="header-column">
-							<div class="header-row">
-								<div class="header-logo" style="width: 100px; height: 48px;">
-									<a href="{% url "teacher" %}">
-										<h1>Exam </h1>
-									</a>
-								</div>
-							</div>
-						</div>
-						<div class="header-column justify-content-end">
-							<div class="header-row">
-								<div class="header-nav header-nav-line header-nav-top-line header-nav-top-line-with-border order-2 order-lg-1">
-									<div class="header-nav-main header-nav-main-square header-nav-main-effect-2 header-nav-main-sub-effect-1">
-										<nav class="collapse">
-											<ul class="nav nav-pills" id="mainNav">
-												{% if user.is_teacher %}
-												<li>
-													<a class="dropdown-item dropdown-toggle" href="{% url "teacher" %}">Home</a>
-												</li>
-												{% else %}
-												<li>
-													<a class="dropdown-item dropdown-toggle" href="{% url "student" %}">Home</a>
-												</li>
-												{% endif %}
-												{% if user.is_teacher %}
-												<li>
-													<a class="dropdown-item dropdown-toggle" href="{% url "create_exam" %}">Create Exams</a>
-												</li>
-												{% endif %}
-												<li>
-													<a class="dropdown-item dropdown-toggle" href="{% url "account_logout" %}">Logout</a>
-												</li>
-											</ul>
-										</nav>
-									</div>
-									<button class="btn header-btn-collapse-nav" data-bs-toggle="collapse" data-bs-target=".header-nav-main nav">
-										<i class="fas fa-bars"></i>
-									</button>
-								</div>
-								<div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2">
-								</div>
-							</div>
-						</div>
-					</div>
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+			<div class="container-fluid d-flex justify-content-evenly align-items-center">
+				<a class="navbar-brand mb-0 h1" href="{% url 'teacher' %}">
+					Exam
+				</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="mainNav">
+					<ul class="navbar-nav p-20 mb-2 mb-lg-0">
+						{% if user.is_teacher %}
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'teacher' %}">Home</a>
+						</li>
+						{% else %}
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'student' %}">Home</a>
+						</li>
+						{% endif %}
+						{% if user.is_teacher %}
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'create_exam' %}">Create Exams</a>
+						</li>
+						{% endif %}
+					</ul>
+					<ul class="navbar-nav ">
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
+						</li>
+					</ul>
 				</div>
 			</div>
-		</header>
+		</nav>
+		
+		
 		
 
         <div id="examples" class="container py-2 pt-20">
             {% block content %}{% endblock content %}
         </div>
-
-
-		<!-- Vendor -->
-		<script src="{% static 'vendor/plugins/js/plugins.min.js' %}"></script>
-
-		<!-- Theme Base, Components and Settings -->
-		<script src="{% static 'js/theme.js' %}"></script>
-
-		<!-- Theme Custom -->
-		<script src="{% static 's/custom.js' %}"></script>
-
-		<!-- Theme Initialization Files -->
-		<script src="{% static 'js/theme.init.js' %}"></script>
-
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 	</body>
 </html>
