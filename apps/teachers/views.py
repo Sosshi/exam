@@ -65,6 +65,7 @@ def create_exam(request):
 def essay_question_create_page(request, exam_id):
     exam = get_object_or_404(Exam, pk=exam_id)
     if exam.exam_type == "essay":
+        print("passed")
         question_form = QuestionForm(request.POST or None)
 
         if request.method == "POST":
