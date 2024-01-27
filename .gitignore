@@ -5,3 +5,5 @@ __pycache__/
 .vscode/
 *.pyc
 staticfiles/
+node_modules/
+node_modules
